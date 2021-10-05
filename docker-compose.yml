@@ -1,0 +1,48 @@
+version: '3.1'
+services:
+  nginx:
+    # используем последний стабильный образ nginx
+    image: nginx:latest
+    # маршрутизируем порты
+    ports:
+        - "80:80"
+        - "443:443"
+    # монтируем директории, слева директории на основной машине, справа - куда они монтируются в контейнере
+    volumes:
+      - ./hosts:/etc/nginx/conf.d
+      - ./www:/var/www/html
+    # nginx должен общаться с php контейнером
+    links:
+        - php
+  php:
+      # у нас свой образ для PHP, указываем путь к нему и говорим что его надо собрать
+      build: ./images/php
+      links:
+          - db
+      # монтируем директорию с проектами
+      volumes:
+        - ./www:/var/www/html
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mdenys
+      MYSQL_DATABASE: mdenys
+      MYSQL_USER: mdenys
+      MYSQL_PASSWORD: mdenys
+    volumes:
+      - './mysql:/var/lib/mysql'
+    ports:
+      - '3306:3306'
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    links:
+      - db
+    ports:
+      - 8080:80
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+      PMA_ALLOWARBITRARYSERVER: "false"
