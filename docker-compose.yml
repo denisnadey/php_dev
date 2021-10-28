@@ -32,6 +32,8 @@ services:
       MYSQL_PASSWORD: mdenys
     volumes:
       - './mysql:/var/lib/mysql'
+      - ./www:/var/www/
+    command: mysqld --sql-mode=NO_ENGINE_SUBSTITUTION
     ports:
       - '3306:3306'
   phpmyadmin:
@@ -44,5 +46,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_ARBITRARY: 1
-      PMA_ALLOWARBITRARYSERVER: "false"
+      PMA_ARBITRARY: 0
+      MAX_EXECUTION_TIME: 9999
+      MEMORY_LIMIT: 5G
+      UPLOAD_LIMIT: 5G
